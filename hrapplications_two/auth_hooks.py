@@ -17,9 +17,11 @@ class ApplicationsMenu(MenuItemHook):
             navactive=['hrapplications_two:'])
 
     def render(self, request):
-        app_count = Application.objects.pending_requests_count_for_user(request.user)
-        self.count = app_count if app_count and app_count > 0 else None
-        return MenuItemHook.render(self, request)
+        if request.user.has_perm("hrapplications_two.access_application"):
+            app_count = Application.objects.pending_requests_count_for_user(request.user)
+            self.count = app_count if app_count and app_count > 0 else None
+            return MenuItemHook.render(self, request)
+        return ''
 
 
 @hooks.register('menu_item_hook')
