@@ -122,7 +122,7 @@
                                 {% if perms.hrapplications_two.approve_application %}
                                     <a href="{% url 'hrapplications_two:approve' app.id %}" class="btn btn-success">{% translate "Approve" %}</a>
                                 {% endif %}
-                                {% if perms.hrapplications_two.reject_application %}
+                                {% if perms.hrapplications_two.approve_application %}
                                     <a href="{% url 'hrapplications_two:reject' app.id %}" class="btn btn-warning">{% translate "Reject" %}</a>
                                 {% endif %}
                                 {% if perms.hrapplications_two.delete_application %}
