@@ -61,6 +61,13 @@ class Application(models.Model):
         return [o.character for o in self.user.character_ownerships.all()]
 
     @property
+    def discord_users(self):
+        try:
+            return self.user.multidiscorduser_set.all()
+        except AttributeError:
+            return None
+
+    @property
     def reviewer_str(self):
         if self.reviewer_character:
             return str(self.reviewer_character)
