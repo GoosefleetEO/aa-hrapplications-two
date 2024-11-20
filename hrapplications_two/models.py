@@ -2,6 +2,7 @@ from collections import defaultdict
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.apps import apps
 from sortedm2m.fields import SortedManyToManyField
 
 from allianceauth.eveonline.models import EveCharacter, EveCorporationInfo
@@ -62,10 +63,9 @@ class Application(models.Model):
 
     @property
     def discord_users(self):
-        try:
+        if apps.is_installed('aadiscordmultiverse'):
             return self.user.multidiscorduser_set.all()
-        except AttributeError:
-            return None
+        return None
 
     @property
     def reviewer_str(self):
