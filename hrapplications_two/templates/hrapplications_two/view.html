@@ -68,7 +68,7 @@
                             <td>
                                 <img class="ra-avatar img-responsive rounded-circle" src="{{ char.portrait_url_32 }}" alt="{{ char.character_name }}">
                             </td>
-                            <td>{{ char.character_name }}</td>
+                            <td><a href="/audit/r_beta/{{ char.character_id }}/account/pubdata">{{ char.character_name }}</a></td>
                             <td>{{ char.corporation_name }}</td>
                             <td>{{ char.alliance_name }}</td>
                         </tr>
@@ -76,6 +76,28 @@
                 </table>
             </div>
         </div>
+
+		{% if app.discord_users %}
+			<div class="card mb-3">
+				<div class="card-header">
+					<div class="card-title mb-0">Discord</div>
+				</div>
+				<div class="card-body">
+					<table class="table">
+						<tr>
+							<th>Server</th>
+							<th>Handle</th>
+						</tr>
+						{% for discord_user in app.discord_users %}
+						<tr>
+							<td>{{ discord_user.guild.server_name }}</td>
+							<td>{{ discord_user.username }}</td>
+						</tr>
+						{% endfor %}
+					</table>
+				</div>
+			</div>
+		{% endif %}
 
         {% for response in responses %}
             <div class="card mb-3">
