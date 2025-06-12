@@ -5,7 +5,7 @@ from allianceauth.menu.hooks import MenuItemHook
 from allianceauth.services.hooks import UrlHook
 
 from . import urls
-from .models import Application, ApplicationAcceptedFilter
+from .models import Application, ApplicationRejectedFilter, ApplicationAcceptedFilter, ApplicationInReviewFilter, ApplicationPendingReviewFilter, ApplicationExistsFilter
 
 class ApplicationsMenu(MenuItemHook):
     def __init__(self):
@@ -40,4 +40,4 @@ def register_url():
 
 @hooks.register('secure_group_filters') # this is the critical name we are searching for.
 def filters(): # can be any name
-    return [ApplicationAcceptedFilter] # pass in the model classes as an array.
+    return [ApplicationRejectedFilter, ApplicationAcceptedFilter, ApplicationInReviewFilter, ApplicationPendingReviewFilter, ApplicationExistsFilter] # pass in the model classes as an array.

@@ -122,6 +122,9 @@ class ApplicationAcceptedFilter(FilterBase):
 
     filter_corp = models.ForeignKey(EveCorporationInfo, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return f"Application accepted for {self.filter_corp.corporation_name}"
+
     def process_filter(self, user: User):
 
         if not user.applications.exists():
@@ -134,7 +137,7 @@ class ApplicationAcceptedFilter(FilterBase):
         return False
 
     def audit_filter(self, users):
-        apps = Application.objects.filter(user__in=users, form__corp=self.filter_corp).values('user__id','approved')
+        apps = Application.objects.filter(user__in=users, form__corp=self.filter_corp).values('user__id','approved','reviewer')
 
         if not apps.count():
             return defaultdict(lambda: {"message": "No Application Found", "check": False})
@@ -145,10 +148,183 @@ class ApplicationAcceptedFilter(FilterBase):
             if a['approved']:
                 message = "Accepted"
                 result = True
-            elif a['approved'] == None:
+            elif a['approved'] is None and a['reviewer'] is not None:
+                message = "In Review"
+            elif a['approved'] is None:
                 message = "Pending"
             else:
                 message = "Rejected"
+            output[a['user__id']] = {"message": f"Application {message}", "check": result}
+
+        return output
+
+class ApplicationRejectedFilter(FilterBase):
+    class Meta:
+        verbose_name = "Smart Filter: Rejected Application for Corp"
+        verbose_name_plural = verbose_name
+
+    filter_corp = models.ForeignKey(EveCorporationInfo, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Application rejected for {self.filter_corp.corporation_name}"
+
+    def process_filter(self, user: User):
+
+        if not user.applications.exists():
+            return False
+
+        applications = user.applications.filter(form__corp=self.filter_corp, approved=False).count()
+        if applications:
+            return True
+
+        return False
+
+    def audit_filter(self, users):
+        apps = Application.objects.filter(user__in=users, form__corp=self.filter_corp).values('user__id','approved','reviewer')
+
+        if not apps.count():
+            return defaultdict(lambda: {"message": "No Application Found", "check": False})
+
+        output = defaultdict(lambda: {"message": "No Application Found", "check": False})
+        for a in apps:
+            result = False
+            if a['approved']:
+                message = "Accepted"
+            elif a['approved'] is None and a['reviewer'] is not None:
+                message = "In Review"
+            elif a['approved'] is None:
+                message = "Pending"
+            else:
+                message = "Rejected"
+                result = True                
+            output[a['user__id']] = {"message": f"Application {message}", "check": result}
+
+        return output
+        
+class ApplicationPendingReviewFilter(FilterBase):
+    class Meta:
+        verbose_name = "Smart Filter: Application for Corp Pending Review"
+        verbose_name_plural = verbose_name
+
+    filter_corp = models.ForeignKey(EveCorporationInfo, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Application pending review for {self.filter_corp.corporation_name}"
+
+    def process_filter(self, user: User):
+
+        if not user.applications.exists():
+            return False
+
+        applications = user.applications.filter(form__corp=self.filter_corp, approved__isnull=True, reviewer__isnull=True).count()
+        if applications:
+            return True
+
+        return False
+
+    def audit_filter(self, users):
+        apps = Application.objects.filter(user__in=users, form__corp=self.filter_corp).values('user__id','approved','reviewer')
+
+        if not apps.count():
+            return defaultdict(lambda: {"message": "No Application Found", "check": False})
+
+        output = defaultdict(lambda: {"message": "No Application Found", "check": False})
+        for a in apps:
+            result = False
+            if a['approved']:
+                message = "Accepted"
+            elif a['approved'] is None and a['reviewer'] is not None:
+                message = "In Review"
+            elif a['approved'] is None:
+                message = "Pending"
+                result = True                
+            else:
+                message = "Rejected"                
+            output[a['user__id']] = {"message": f"Application {message}", "check": result}
+
+        return output
+        
+class ApplicationInReviewFilter(FilterBase):
+    class Meta:
+        verbose_name = "Smart Filter: Application for Corp In Review"
+        verbose_name_plural = verbose_name
+
+    filter_corp = models.ForeignKey(EveCorporationInfo, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Application in review for {self.filter_corp.corporation_name}"
+
+    def process_filter(self, user: User):
+
+        if not user.applications.exists():
+            return False
+
+        applications = user.applications.filter(form__corp=self.filter_corp, approved__isnull=True, reviewer__isnull=False).count()
+        if applications:
+            return True
+
+        return False
+
+    def audit_filter(self, users):
+        apps = Application.objects.filter(user__in=users, form__corp=self.filter_corp).values('user__id','approved','reviewer')
+
+        if not apps.count():
+            return defaultdict(lambda: {"message": "No Application Found", "check": False})
+
+        output = defaultdict(lambda: {"message": "No Application Found", "check": False})
+        for a in apps:
+            result = False
+            if a['approved']:
+                message = "Accepted"
+            elif a['approved'] is None and a['reviewer'] is not None:
+                message = "In Review"
+                result = True                
+            elif a['approved'] is None:
+                message = "Pending"
+            else:
+                message = "Rejected"                
+            output[a['user__id']] = {"message": f"Application {message}", "check": result}
+
+        return output
+        
+class ApplicationExistsFilter(FilterBase):
+    class Meta:
+        verbose_name = "Smart Filter: Application for Corp Exists"
+        verbose_name_plural = verbose_name
+
+    filter_corp = models.ForeignKey(EveCorporationInfo, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return f"Application exists for {self.filter_corp.corporation_name}"
+
+    def process_filter(self, user: User):
+
+        if not user.applications.exists():
+            return False
+
+        applications = user.applications.filter(form__corp=self.filter_corp).count()
+        if applications:
+            return True
+
+        return False
+
+    def audit_filter(self, users):
+        apps = Application.objects.filter(user__in=users, form__corp=self.filter_corp).values('user__id','approved','reviewer')
+
+        if not apps.count():
+            return defaultdict(lambda: {"message": "No Application Found", "check": False})
+
+        output = defaultdict(lambda: {"message": "No Application Found", "check": False})
+        for a in apps:
+            result = True
+            if a['approved']:
+                message = "Accepted"
+            elif a['approved'] is None and a['reviewer'] is not None:
+                message = "In Review"      
+            elif a['approved'] is None:
+                message = "Pending"
+            else:
+                message = "Rejected"                
             output[a['user__id']] = {"message": f"Application {message}", "check": result}
 
         return output

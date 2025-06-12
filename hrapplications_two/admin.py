@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import Application, ApplicationChoice, ApplicationComment, ApplicationForm, ApplicationQuestion, \
-    ApplicationResponse, ApplicationAcceptedFilter
+    ApplicationResponse, ApplicationAcceptedFilter, ApplicationRejectedFilter, ApplicationInReviewFilter, ApplicationPendingReviewFilter, ApplicationExistsFilter
 
 
 class ChoiceInline(admin.TabularInline):
@@ -22,7 +22,11 @@ admin.site.register(ApplicationComment)
 admin.site.register(ApplicationForm)
 admin.site.register(ApplicationResponse)
 
-class ApplicationAcceptedAdmin(admin.ModelAdmin):
-    raw_id_fields = ['filter_corp']
+class ApplicationFiltersAdmin(admin.ModelAdmin):
+    readonly_fields = ["filter_corp"]
 
-admin.site.register(ApplicationAcceptedFilter, ApplicationAcceptedAdmin)
+admin.site.register(ApplicationAcceptedFilter, ApplicationFiltersAdmin)
+admin.site.register(ApplicationRejectedFilter, ApplicationFiltersAdmin)
+admin.site.register(ApplicationPendingReviewFilter, ApplicationFiltersAdmin)
+admin.site.register(ApplicationInReviewFilter, ApplicationFiltersAdmin)
+admin.site.register(ApplicationExistsFilter, ApplicationFiltersAdmin)
